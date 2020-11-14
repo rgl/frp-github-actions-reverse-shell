@@ -1,0 +1,26 @@
+name: Ubuntu
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Public IP
+        id: ip
+        uses: haythem/public-ip@v1.2
+      - name: Print Public IP
+        run: |
+          echo 'ipv4: ${{ steps.ip.outputs.ipv4 }}'
+          echo 'ipv6: ${{ steps.ip.outputs.ipv6 }}'
+      - run: ./generate-certificates.sh
+        env:
+          FRPS_DOMAIN: ${{ secrets.FRPS_DOMAIN }}
+      - run: ./install-frp.sh
+      - name: run frpc
+        env:
+          FRPS_DOMAIN: ${{ secrets.FRPS_DOMAIN }}
+          FRPC_TLS_KEY: ${{ secrets.FRPC_TLS_KEY }}
+          FRPC_TLS_CERTIFICATE: ${{ secrets.FRPC_TLS_CERTIFICATE }}
+          FRPC_TLS_CA_CERTIFICATE: ${{ secrets.FRPC_TLS_CA_CERTIFICATE }}
+          SSH_PUBLIC_KEY: ${{ secrets.SSH_PUBLIC_KEY }}
+        run: ./run-frpc.sh
