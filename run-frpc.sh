@@ -25,11 +25,11 @@ if [ -v SSH_PUBLIC_KEY ]; then
     chmod 775 ~
 fi
 
-# uncomment the next block if the ssh public key login is not
-# working. it unlocks the user account and sets a password.
-# sudo bash <<EOF
-# usermod -U $USER
-# echo "$USER:abracadabra" | chpasswd
-# EOF
+if [ -v RUNNER_PASSWORD ]; then
+    sudo bash <<EOF
+usermod -U $USER
+echo "$USER:$RUNNER_PASSWORD" | chpasswd
+EOF
+fi
 
-./frp/frpc -c ./frpc.ini 2>&1 | sed -E 's,[0-9\.]+:6969,***:6969,ig' || true
+./frp/frpc -c frpc.ini 2>&1 | sed -E 's,[0-9\.]+:6969,***:6969,ig' || true

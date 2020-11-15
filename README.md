@@ -6,6 +6,8 @@ Since GitHub Actions cannot be directly accessed from the internet (only outboun
 
 ![](diagram.png)
 
+**NB** This also applies to Windows based GitHub Actions, but using RDP instead of SSH.
+
 ## Usage
 
 Generate the TLS certificates:
@@ -27,7 +29,7 @@ Temporarily run the client in our machine to test everything with the [correspon
 ./frp/frpc -c ./frpc.ini
 ```
 
-Connect to the client ssh server:
+Connect to the client SSH server:
 
 ```bash
 ssh -o Port=6000 127.0.0.1
@@ -39,6 +41,7 @@ You are now almost ready to run `frpc` inside your GitHub Action job; before doi
 
 | Secret Name | Value |
 |-------------|-------|
+| `RUNNER_PASSWORD` | runner account password (it will be reset to this value) |
 | `FRPS_DOMAIN` | your frps domain |
 | `FRPC_TLS_KEY` | paste the contents of the `ca/github-key.pem` file |
 | `FRPC_TLS_CERTIFICATE` | paste the contents of the `ca/github.pem` file |
@@ -49,11 +52,18 @@ You can now run the GitHub Action.
 
 **NB** `frpc` will keep the Action running until GitHub expires it after 6h (as per the [usage limits](https://docs.github.com/en/free-pro-team@latest/actions/reference/usage-limits-billing-and-administration#usage-limits)) or you cancel it.
 
-Connect to the GitHub Action ssh server:
+Connect to the Ubuntu based GitHub Action SSH server:
 
 ```bash
 ssh -o Port=6000 runner@127.0.0.1
 #killall frpc # terminate frpc from the shell.
+```
+
+Connect to the Windows based GitHub Action RDP server:
+
+```bash
+sudo apt-get install -y freerdp2-x11
+xfreerdp /v:127.0.0.1:6001 /u:runneradmin "/p:$RUNNER_PASSWORD" /size:1440x900 +clipboard
 ```
 
 And that's it... You now have a way to troubleshoot your GitHub Actions.

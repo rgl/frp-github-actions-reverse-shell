@@ -1,8 +1,8 @@
-name: Ubuntu
+name: Windows
 on: [push]
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: windows-2019
     steps:
       - uses: actions/checkout@v2
       - name: Public IP
@@ -12,10 +12,7 @@ jobs:
         run: |
           echo 'ipv4: ${{ steps.ip.outputs.ipv4 }}'
           echo 'ipv6: ${{ steps.ip.outputs.ipv6 }}'
-      - run: ./generate-certificates.sh
-        env:
-          FRPS_DOMAIN: ${{ secrets.FRPS_DOMAIN }}
-      - run: ./install-frp.sh
+      - run: ./install-frp.ps1
       - name: run frpc
         env:
           RUNNER_PASSWORD: ${{ secrets.RUNNER_PASSWORD }}
@@ -24,4 +21,4 @@ jobs:
           FRPC_TLS_CERTIFICATE: ${{ secrets.FRPC_TLS_CERTIFICATE }}
           FRPC_TLS_CA_CERTIFICATE: ${{ secrets.FRPC_TLS_CA_CERTIFICATE }}
           SSH_PUBLIC_KEY: ${{ secrets.SSH_PUBLIC_KEY }}
-        run: ./run-frpc.sh
+        run: ./run-frpc.ps1
